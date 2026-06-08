@@ -1,0 +1,25 @@
+%%{init: {"theme": "base", "themeVariables": {"fontSize": "28px", "actorFontSize": "26px", "noteFontSize": "24px", "fontFamily": "Arial, Helvetica, sans-serif", "primaryTextColor": "#111111", "lineColor": "#202020"}, "sequence": {"diagramMarginX": 60, "diagramMarginY": 30, "actorMargin": 140, "width": 220, "height": 100, "boxMargin": 12, "noteMargin": 20, "messageMargin": 50}}}%%
+sequenceDiagram
+    autonumber
+    actor U as Candidato
+    participant A as Agente IA
+    participant W as Navegador
+    participant N as Módulos Node (src/)
+    participant D as Dados e relatórios
+
+    Note over U,D: Uma vaga — pipeline automático
+    U->>A: Envia URL ou texto da vaga
+    A->>W: Abre página e lê vaga
+    W-->>A: Texto da descrição
+    A->>A: Avalia blocos A–G e calcula nota
+    A->>D: Grava relatório .md e CV em PDF
+    A->>D: Atualiza lista de candidaturas
+
+    Note over U,D: Muitas vagas — descoberta e lote
+    U->>A: Pede varredura de portais
+    A->>N: Executa scan.mjs
+    N->>D: Coloca URLs novas na fila
+    U->>A: Pede avaliar fila
+    A->>A: Avalia vagas em paralelo
+    A->>N: Executa merge-tracker.mjs
+    N->>D: Consolida tracker final

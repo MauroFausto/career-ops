@@ -1,0 +1,135 @@
+%%{init: {"theme": "base", "themeVariables": {"fontSize": "20px", "fontFamily": "Arial, Helvetica, sans-serif"}, "flowchart": {"nodeSpacing": 50, "rankSpacing": 65, "padding": 22}}}%%
+flowchart TB
+    subgraph ENTRY["Scripts de entrada solicitados"]
+        direction TB
+        doctor["doctor.mjs<br/>validação de setup"]
+        upd["update-system.mjs<br/>check · apply · rollback"]
+        cadence["followup-cadence.mjs<br/>cadência de follow-up"]
+        scan["scan.mjs<br/>varredura de portais"]
+    end
+
+    subgraph SCAN["scan.mjs — varredura"]
+        direction TB
+        portals["portals.yml"]
+        http["_http.mjs"]
+        prov["providers/*.mjs<br/>greenhouse · lever · ashby · …"]
+        yaml["js-yaml"]
+        scan --> portals
+        scan --> http
+        scan -. carrega .-> prov
+        prov --> http
+        scan --> yaml
+    end
+
+    subgraph LIVE["Checagem de URL / liveness"]
+        direction TB
+        check["check-liveness.mjs"]
+        lbrowser["liveness-browser.mjs"]
+        lcore["liveness-core.mjs"]
+        pw["playwright / chromium"]
+        check --> lbrowser --> lcore
+        check --> pw
+        lbrowser --> pw
+        scan -. "--verify" .-> lbrowser
+    end
+
+    subgraph PIPE["Integridade do tracker"]
+        direction TB
+        merge["merge-tracker.mjs"]
+        verify["verify-pipeline.mjs"]
+        dedup["dedup-tracker.mjs"]
+        norm["normalize-statuses.mjs"]
+        cvchk["cv-sync-check.mjs"]
+        patterns["analyze-patterns.mjs"]
+        states["templates/states.yml"]
+        tsv["batch/tracker-additions/*.tsv"]
+        merge --> tsv
+        merge -. "--verify" .-> verify
+        verify --> states
+        dedup --> states
+        norm --> states
+    end
+
+    subgraph OUT["Geração de saída"]
+        direction TB
+        pdf["generate-pdf.mjs"]
+        latex["generate-latex.mjs"]
+        gemini["gemini-eval.mjs"]
+        tplHtml["templates/cv-template.html"]
+        tplTex["templates/cv-template.tex"]
+        fonts["fonts/"]
+        pdf --> tplHtml
+        pdf --> fonts
+        pdf --> pw
+        latex --> tplTex
+    end
+
+    subgraph GO["Dashboard Go — TUI"]
+        direction TB
+        main["dashboard/main.go"]
+        screens["internal/ui/screens<br/>pipeline · viewer · progress"]
+        data["internal/data/career.go"]
+        model["internal/model"]
+        theme["internal/theme"]
+        main --> screens
+        main --> data
+        main --> model
+        main --> theme
+        screens --> data
+        screens --> model
+        screens --> theme
+        data --> model
+    end
+
+    subgraph DATA["Camada de dados (leitura/escrita)"]
+        direction LR
+        apps["data/applications.md"]
+        followups["data/follow-ups.md"]
+        pipeline["data/pipeline.md"]
+        history["data/scan-history.tsv"]
+        reports["reports/*.md"]
+        cvmd["cv.md"]
+        output["output/"]
+    end
+
+    doctor -. verifica .-> portals
+    doctor -. verifica .-> fonts
+    doctor -. playwright .-> pw
+
+    cadence --> apps
+    cadence --> followups
+    cadence -. opcional .-> reports
+
+    merge --> apps
+    verify --> apps
+    verify --> reports
+    dedup --> apps
+    norm --> apps
+    cvchk --> cvmd
+    patterns --> apps
+    patterns --> reports
+    gemini --> reports
+
+    scan --> history
+    scan --> pipeline
+    scan --> apps
+
+    pdf --> output
+    latex --> output
+
+    data --> apps
+    data --> reports
+    data --> history
+
+    upd -. git checkout .-> SCAN
+    upd -. git checkout .-> LIVE
+    upd -. git checkout .-> PIPE
+    upd -. git checkout .-> OUT
+    upd -. git checkout .-> GO
+
+    ENTRY ~~~ SCAN
+    SCAN ~~~ LIVE
+    LIVE ~~~ PIPE
+    PIPE ~~~ OUT
+    OUT ~~~ GO
+    GO ~~~ DATA

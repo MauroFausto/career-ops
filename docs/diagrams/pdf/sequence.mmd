@@ -1,0 +1,29 @@
+%%{init: {"theme": "base"}}%%
+sequenceDiagram
+    autonumber
+    actor U as Candidato
+    participant A as Agente IA
+    participant W as Playwright
+    participant G as generate-pdf.mjs
+    participant O as output/
+
+    U->>A: /career-ops pdf [empresa/JD]
+    A->>A: Lê cv.md + profile.yml + pdf.md
+
+    opt JD é URL
+        A->>W: Extrai texto da vaga
+        W-->>A: JD
+    end
+
+    opt JD ausente
+        A-->>U: Pede JD
+        U-->>A: Texto ou URL
+    end
+
+    A->>A: Keywords, idioma, arquétipo, formato papel
+    A->>A: Personaliza seções (summary, projects, skills)
+    A->>A: Monta HTML em /tmp/cv-*.html
+    A->>G: node generate-pdf.mjs --format letter|a4
+    G->>O: cv-candidate-company-date.pdf
+    G-->>A: path + páginas + coverage %
+    A-->>U: Caminho PDF + métricas keyword

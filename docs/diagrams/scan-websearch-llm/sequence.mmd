@@ -1,0 +1,37 @@
+%%{init: {"theme": "base"}}%%
+sequenceDiagram
+    autonumber
+    participant A as Agente IA
+    participant PY as portals.yml
+    participant WS as WebSearch (LLM)
+    participant W as Playwright
+    participant PL as pipeline.md
+    participant H as scan-history.tsv
+
+    Note over A: Após Níveis 0–2; local_parser_ok já populado
+
+    A->>PY: Lê search_queries enabled
+
+    loop cada query
+        A->>WS: Executa query site:...
+        WS-->>A: Snippets título + URL
+        A->>A: Parse title/company (regex)
+        A->>A: Descarta se company ∈ local_parser_ok
+        A->>A: Acumula candidatos L3
+    end
+
+    A->>A: Merge + dedup com N0–N2
+    A->>A: title_filter + location_filter
+
+    loop cada URL nova só do Nível 3
+        A->>W: browser_navigate (sequencial)
+        W-->>A: snapshot conteúdo
+        alt expirada / erro nav
+            A->>H: skipped_expired
+        else ativa (JD + Apply)
+            A->>PL: - [ ] url | company | title
+            A->>H: status added
+        end
+    end
+
+    A-->>A: Resumo: expiradas descartadas, novas no pipeline

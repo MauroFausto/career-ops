@@ -1,0 +1,39 @@
+%%{init: {"theme": "base"}}%%
+flowchart TB
+    subgraph In["Entrada"]
+        PAGE["Formulário web<br/>URL / snapshot"]
+        REP[("reports/*.md")]
+        CV["cv.md"]
+    end
+
+    subgraph Match["Contexto"]
+        ID["Empresa + role"]
+        FIND["grep reports/"]
+        LOAD["Blocos B, F, G/H"]
+        CHG{"Role mudou?"}
+    end
+
+    subgraph Gen["Geração"]
+        Q["Perguntas do form"]
+        ANS["Respostas personalizadas"]
+        TONE["Tom I'm choosing you"]
+    end
+
+    subgraph Out["Saída"]
+        CHAT["Respostas formatadas<br/>(copy-paste)"]
+        STOP["⛔ Sem Submit"]
+    end
+
+    PAGE --> ID --> FIND
+    REP --> FIND --> LOAD
+    CV --> ANS
+    LOAD --> CHG
+    CHG -->|adaptar ou re-eval| Q
+    PAGE --> Q --> ANS --> TONE --> CHAT --> STOP
+
+    classDef in fill:#dbeafe,stroke:#2563eb
+    classDef proc fill:#e0e7ff,stroke:#4338ca
+    classDef out fill:#dcfce7,stroke:#16a34a
+    class PAGE,REP,CV in
+    class ID,FIND,LOAD,CHG,Q,ANS,TONE proc
+    class CHAT,STOP out

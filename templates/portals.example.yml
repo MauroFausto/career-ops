@@ -354,9 +354,9 @@ search_queries:
 # scan_method: playwright (default), websearch, local_parser
 # For Greenhouse companies, add api: field for faster structured JSON access.
 #
-# Provider routing (scan.mjs):
+# Provider routing (src/scan/scan.mjs):
 #   By default each entry is auto-detected from `careers_url` against the
-#   loaded providers in providers/*.mjs (local-parser, ashby, greenhouse, lever).
+#   loaded providers in src/scan/providers/*.mjs (local-parser, ashby, greenhouse, lever).
 #   local-parser runs first when parser.command + parser.script are set.
 #
 #   Optional fields on a tracked_companies entry:
@@ -377,7 +377,7 @@ search_queries:
 #   scan_method: local_parser
 #   parser:
 #     command: node
-#     script: scripts/parsers/example-js-company-jobs.js
+#     script: src/parsers/example-js-company-jobs.js
 #     format: jobs-json-v1
 #   enabled: true
 #
@@ -387,12 +387,12 @@ search_queries:
 #   scan_method: local_parser
 #   parser:
 #     command: python3
-#     script: scripts/parsers/example_python_company_jobs.py
+#     script: src/parsers/example_python_company_jobs.py
 #     format: jobs-json-v1
 #   enabled: true
 
 # ── Provider auto-detection ───────────────────────────────────────
-# scan.mjs auto-loads everything in providers/*.mjs and tries each
+# src/scan/scan.mjs auto-loads everything in src/scan/providers/*.mjs and tries each
 # provider's detect() in order. URL patterns recognized:
 #
 #   greenhouse      job-boards(.eu)?.greenhouse.io/<slug>  (or api: field)
@@ -1078,7 +1078,7 @@ tracked_companies:
   #
   # NOTE on scanning: Most Turkish companies below do NOT expose a
   # public ATS API (Greenhouse / Lever / Ashby) on their careers_url,
-  # so `scan.mjs` will filter them out automatically (it requires a
+  # so `src/scan/scan.mjs` will filter them out automatically (it requires a
   # detectable ATS). They are listed here as discovery aids — paste
   # the URL of any specific role into `data/pipeline.md` and run
   # `/career-ops pipeline`, which uses Playwright/WebFetch instead.

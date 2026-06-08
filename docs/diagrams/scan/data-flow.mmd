@@ -1,0 +1,68 @@
+%%{init: {"theme": "base", "flowchart": {"curve": "basis"}}}%%
+flowchart TB
+    subgraph Config["Configuração"]
+        PY["portals.yml"]
+        HIST[("scan-history.tsv")]
+        APP[("applications.md")]
+        PIPE[("pipeline.md")]
+    end
+
+    subgraph L0["Nível 0 — Zero-token"]
+        SCAN["scan.mjs"]
+        PROV["providers/*.mjs<br/>local-parser · greenhouse · ashby · lever · …"]
+        L0OUT["Jobs normalizados<br/>{title, url, company, location}"]
+    end
+
+    subgraph L1["Nível 1 — Agente Playwright"]
+        PW["browser_navigate careers_url"]
+        L1OUT["Listings tempo real"]
+    end
+
+    subgraph L2["Nível 2 — Agente API"]
+        API["WebFetch APIs ATS"]
+        L2OUT["Jobs JSON/XML"]
+    end
+
+    subgraph L3["Nível 3 — Agente WebSearch"]
+        WS["search_queries site:"]
+        LIVE["Playwright liveness<br/>(sequencial)"]
+        L3OUT["Hits verificados"]
+    end
+
+    subgraph Filter["Pós-processamento"]
+        TF["title_filter"]
+        LF["location_filter"]
+        DEDUP["Dedup 3 fontes"]
+        MERGE["Merge candidatos"]
+    end
+
+    subgraph Out["Saídas"]
+        PEND["pipeline.md Pending"]
+        SH["scan-history.tsv"]
+        JDS[("jds/*.md local:")]
+    end
+
+    PY --> SCAN
+    SCAN --> PROV --> L0OUT
+
+    PY --> PW --> L1OUT
+    PY --> API --> L2OUT
+    PY --> WS --> LIVE --> L3OUT
+
+    L0OUT & L1OUT & L2OUT & L3OUT --> MERGE
+    MERGE --> TF --> LF --> DEDUP
+    HIST & APP & PIPE --> DEDUP
+
+    DEDUP -->|novas| PEND
+    DEDUP --> SH
+    DEDUP -->|URL privada| JDS
+
+    classDef config fill:#dbeafe,stroke:#2563eb
+    classDef level fill:#e0e7ff,stroke:#4338ca
+    classDef filter fill:#fef3c7,stroke:#d97706
+    classDef store fill:#f3e8ff,stroke:#9333ea
+
+    class PY config
+    class SCAN,PROV,PW,API,WS,LIVE level
+    class TF,LF,DEDUP,MERGE filter
+    class HIST,APP,PIPE,PEND,SH,JDS store

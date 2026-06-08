@@ -1,0 +1,17 @@
+%%{init: {"theme": "base"}}%%
+sequenceDiagram
+    autonumber
+    actor U as Candidato
+    participant A as Agente IA
+    participant P as profile.yml
+    participant CV as cv.md
+
+    U->>A: /career-ops training [curso/cert]
+    A->>P: Lê North Star
+    A->>CV: Lacunas e credibilidade atual
+    A->>A: Avalia 6 dimensões
+    A->>A: Emite veredicto FAZER | NÃO | TIMEBOX
+    opt FAZER ou TIMEBOX
+        A->>A: Plano semanal com entregáveis
+    end
+    A-->>U: Tabela + veredicto + plano

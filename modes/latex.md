@@ -1,6 +1,6 @@
 # Mode: latex — LaTeX/Overleaf CV Export
 
-Export a tailored, ATS-optimized CV as a `.tex` file and compile it to PDF via `tectonic` or `pdflatex`.
+Export tailored CV as PDF via LaTeX. Backend from `config/profile.yml` → `cv.latex_backend` (`native` or `tex-docctor`).
 
 ## Pipeline
 
@@ -14,12 +14,14 @@ Export a tailored, ATS-optimized CV as a `.tex` file and compile it to PDF via `
 8. Select top 3-4 most relevant projects for the offer
 9. Reorder experience bullets by JD relevance
 10. Inject keywords naturally into existing achievements
-11. Generate the `.tex` file using `templates/cv-template.tex`
-12. Write to `output/cv-{candidate}-{company}-{YYYY-MM-DD}.tex`
-13. Run: `node generate-latex.mjs output/cv-{candidate}-{company}-{YYYY-MM-DD}.tex output/cv-{candidate}-{company}-{YYYY-MM-DD}.pdf`
-14. Report: .tex path, .pdf path, file sizes, section count, keyword coverage %
+11. **If `latex_backend: tex-docctor`:** update relevant files under `{tex_docctor.project_dir}/src/secoes/` per JD (see `modes/_profile.md`). Skip sb2nov template generation unless user requests Overleaf export.
+12. **If `latex_backend: native`:** generate `.tex` from `templates/cv-template.tex` → `output/cv-{candidate}-{company}-{YYYY-MM-DD}.tex`
+13. Run: `node src/generators/generate-latex.mjs output/cv-{candidate}-{company}-{YYYY-MM-DD}.tex output/cv-{candidate}-{company}-{YYYY-MM-DD}.pdf`
+14. Report: .tex path (if any), .pdf path, file sizes, section count, keyword coverage %
 
-**Requires:** `tectonic` (preferred — `brew install tectonic`, auto-downloads packages) or `pdflatex` (MiKTeX / TeX Live) on PATH.
+**Requires (native):** `tectonic` or `pdflatex` on PATH.
+
+**Requires (tex-docctor):** `tex-docctor` CLI + workspace at `cv.tex_docctor.project_dir`. See `docs/LOCAL-SETUP.md`.
 
 ## Template Placeholders
 

@@ -1,0 +1,38 @@
+%%{init: {"theme": "base"}}%%
+sequenceDiagram
+    autonumber
+    actor U as Candidato
+    participant A as Agente IA
+    participant S as cv-sync-check.mjs
+    participant P as pipeline.md
+    participant W as Playwright
+    participant R as reports/
+    participant M as merge-tracker.mjs
+
+    U->>A: /career-ops pipeline
+    A->>S: Verifica sync CV
+    S-->>A: OK ou alerta
+    A->>P: Lista itens - [ ] Pending
+
+    alt 3+ URLs pendentes
+        A->>A: Spawn subagentes paralelos
+    end
+
+    loop Cada URL pendente
+        A->>A: Calcula REPORT_NUM
+        A->>W: Extrai JD
+        alt Falha / login
+            A->>P: - [!] com nota
+        else OK
+            A->>A: Eval A–G
+            A->>R: Salva report
+            opt score >= threshold
+                A->>A: Gera PDF
+            end
+            A->>A: TSV tracker-additions
+            A->>P: Move para Processed [x]
+        end
+    end
+
+    A->>M: merge-tracker.mjs
+    A-->>U: Tabela resumo Company | Role | Score | PDF

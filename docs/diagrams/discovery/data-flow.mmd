@@ -1,0 +1,26 @@
+%%{init: {"theme": "base", "flowchart": {"curve": "basis"}}}%%
+flowchart LR
+    subgraph Input["Entrada"]
+        CMD["/career-ops<br/>(sem args)"]
+    end
+
+    subgraph Router["Roteador"]
+        SKILL["SKILL.md<br/>Mode Routing"]
+        DISC{"$mode vazio?"}
+    end
+
+    subgraph Output["Saída"]
+        MENU["Menu de comandos<br/>(chat)"]
+    end
+
+    CMD --> SKILL
+    SKILL --> DISC
+    DISC -->|sim| MENU
+
+    classDef input fill:#dbeafe,stroke:#2563eb
+    classDef router fill:#e0e7ff,stroke:#4338ca
+    classDef output fill:#dcfce7,stroke:#16a34a
+
+    class CMD input
+    class SKILL,DISC router
+    class MENU output

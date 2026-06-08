@@ -1,0 +1,32 @@
+%%{init: {"theme": "base"}}%%
+sequenceDiagram
+    autonumber
+    actor U as Candidato
+    participant C as Conductor / runner
+    participant Chrome as Chrome headed
+    participant W as Worker headless
+    participant R as reports/
+    participant M as merge-tracker.mjs
+
+    U->>C: /career-ops batch
+
+    alt Modo A — Conductor
+        C->>Chrome: Navega portal de busca
+        Chrome-->>C: URLs + JD do DOM
+        C->>C: Append batch-input.tsv
+    else Modo B — Standalone
+        C->>C: Lê batch-input.tsv existente
+    end
+
+    loop Cada job pending
+        C->>W: claude -p batch-prompt (URL, JD, report_num)
+        W->>W: Eval A–G (WebFetch fallback)
+        W->>R: report .md
+        W->>W: PDF + tracker-additions TSV
+        W-->>C: status completed/failed
+        C->>C: Atualiza batch-state.tsv
+    end
+
+    C->>M: merge-tracker.mjs
+    M-->>C: applications.md atualizado
+    C-->>U: Tabela resumo scores + falhas

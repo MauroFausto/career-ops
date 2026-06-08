@@ -1,0 +1,31 @@
+%%{init: {"theme": "base"}}%%
+flowchart LR
+    subgraph In["Entrada"]
+        JOB["Empresa + role + JD"]
+        CV["cv.md"]
+        REP[("reports/ opcional")]
+    end
+
+    subgraph Research["Pesquisa"]
+        WS["WebSearch<br/>HM, recruiter, peers"]
+        TARGETS["Lista de alvos"]
+        TYPE["Classificar tipo<br/>Recruiter | HM | Peer | Interviewer"]
+    end
+
+    subgraph Draft["Redação"]
+        F1["Frase 1 — hook/fit"]
+        F2["Frase 2 — proof"]
+        F3["Frase 3 — CTA"]
+        MSG["Mensagem ≤300 chars"]
+        ALT["Alvos alternativos"]
+    end
+
+    JOB & REP --> WS --> TARGETS --> TYPE
+    CV --> F2
+    TYPE --> F1 & F3
+    F1 & F2 & F3 --> MSG & ALT
+
+    classDef in fill:#dbeafe,stroke:#2563eb
+    classDef proc fill:#e0e7ff,stroke:#4338ca
+    class JOB,CV,REP in
+    class WS,TARGETS,TYPE,F1,F2,F3,MSG,ALT proc

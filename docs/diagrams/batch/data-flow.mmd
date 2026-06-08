@@ -1,0 +1,50 @@
+%%{init: {"theme": "base"}}%%
+flowchart TB
+    subgraph In["Entrada"]
+        BI["batch-input.tsv"]
+        BP["batch-prompt.md"]
+        CV["cv.md + profile.yml"]
+    end
+
+    subgraph Orch["Orquestração"]
+        MODE{"Modo?"}
+        COND["Conductor Chrome<br/>lê DOM + pagina"]
+        RUN["batch-runner.sh"]
+        STATE[("batch-state.tsv")]
+    end
+
+    subgraph Workers["Workers paralelos"]
+        W1["headless CLI -p"]
+        W2["headless CLI -p"]
+        WN["headless CLI -p"]
+    end
+
+    subgraph PerJob["Por job"]
+        EVAL["Eval A–G"]
+        REP[("reports/*.md")]
+        PDF[("output/*.pdf")]
+        TSV[("tracker-additions/*.tsv")]
+        LOG[("batch/logs/*.log")]
+    end
+
+    subgraph End["Fim"]
+        MERGE["merge-tracker.mjs"]
+        APP[("applications.md")]
+    end
+
+    BI --> MODE
+    MODE -->|A| COND --> BI
+    MODE -->|B| RUN
+    COND & RUN --> STATE
+    RUN --> W1 & W2 & WN
+    BP & CV --> W1 & W2 & WN
+
+    W1 & W2 & WN --> EVAL --> REP & PDF & TSV & LOG
+    TSV --> MERGE --> APP
+
+    classDef in fill:#dbeafe,stroke:#2563eb
+    classDef orch fill:#e0e7ff,stroke:#4338ca
+    classDef store fill:#f3e8ff,stroke:#9333ea
+    class BI,BP,CV in
+    class MODE,COND,RUN,MERGE,EVAL,W1,W2,WN orch
+    class STATE,REP,PDF,TSV,LOG,APP store

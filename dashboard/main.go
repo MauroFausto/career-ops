@@ -6,13 +6,14 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/santifer/career-ops/dashboard/internal/data"
-	"github.com/santifer/career-ops/dashboard/internal/model"
-	"github.com/santifer/career-ops/dashboard/internal/theme"
-	"github.com/santifer/career-ops/dashboard/internal/ui/screens"
+	"career-ops/dashboard/internal/data"
+	"career-ops/dashboard/internal/model"
+	"career-ops/dashboard/internal/theme"
+	"career-ops/dashboard/internal/ui/screens"
 )
 
 type viewState int
@@ -151,8 +152,40 @@ func (m appModel) View() string {
 	}
 }
 
+// useAltScreen returns false when alt-screen would break the terminal under a
+// debugger (Delve/IDE) or when explicitly disabled for integrated-terminal debug.
+func useAltScreen(noAltScreen bool) bool {
+	if noAltScreen {
+		return false
+	}
+	if os.Getenv("CAREER_OPS_TUI_NO_ALT_SCREEN") == "1" {
+		return false
+	}
+	return !debuggerAttached()
+}
+
+// debuggerAttached detects an active ptrace tracer (Delve, gdb, etc.).
+func debuggerAttached() bool {
+	if runtime.GOOS != "linux" {
+		return false
+	}
+	b, err := os.ReadFile("/proc/self/status")
+	if err != nil {
+		return false
+	}
+	for _, line := range strings.Split(string(b), "\n") {
+		if !strings.HasPrefix(line, "TracerPid:") {
+			continue
+		}
+		fields := strings.Fields(line)
+		return len(fields) >= 2 && fields[1] != "0"
+	}
+	return false
+}
+
 func main() {
 	pathFlag := flag.String("path", ".", "Path to career-ops directory")
+	noAltScreenFlag := flag.Bool("no-alt-screen", false, "Disable alternate screen buffer (useful when debugging in integrated terminal)")
 	flag.Parse()
 
 	careerOpsPath := *pathFlag
@@ -189,7 +222,12 @@ func main() {
 		progressMetrics: progressMetrics,
 	}
 
-	p := tea.NewProgram(m, tea.WithAltScreen())
+	opts := []tea.ProgramOption{}
+	if useAltScreen(*noAltScreenFlag) {
+		opts = append(opts, tea.WithAltScreen())
+	}
+
+	p := tea.NewProgram(m, opts...)
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)

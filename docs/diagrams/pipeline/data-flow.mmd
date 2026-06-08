@@ -1,0 +1,42 @@
+%%{init: {"theme": "base"}}%%
+flowchart TB
+    subgraph In["Entrada"]
+        PL[("pipeline.md Pending")]
+        PROF["profile.yml<br/>auto_pdf_score_threshold"]
+        SYNC["cv-sync-check.mjs"]
+    end
+
+    subgraph Loop["Por URL pendente"]
+        NUM["Próximo REPORT_NUM"]
+        EXT["Extrair JD<br/>Playwright → WebFetch → WebSearch"]
+        FAIL{"Acessível?"}
+        EVAL["Eval A–G"]
+        GATE{"score ≥ threshold?"}
+        PDF["generate-pdf.mjs"]
+        TSV["tracker-additions TSV"]
+        DONE["Marcar Processed [x]"]
+        ERR["Marcar [!] + nota"]
+    end
+
+    subgraph Out["Saídas"]
+        REP[("reports/")]
+        OUTPDF[("output/")]
+        MERGE["merge-tracker.mjs"]
+        APP[("applications.md")]
+    end
+
+    PL --> SYNC
+    SYNC --> NUM --> EXT --> FAIL
+    FAIL -->|não| ERR --> PL
+    FAIL -->|sim| EVAL --> REP
+    PROF --> GATE
+    EVAL --> GATE
+    GATE -->|sim| PDF --> OUTPDF
+    GATE -->|não| TSV
+    PDF --> TSV --> DONE --> PL
+    TSV --> MERGE --> APP
+
+    classDef store fill:#f3e8ff,stroke:#9333ea
+    classDef proc fill:#e0e7ff,stroke:#4338ca
+    class PL,REP,OUTPDF,APP store
+    class SYNC,NUM,EXT,FAIL,EVAL,GATE,PDF,TSV,DONE,ERR,MERGE,PROF proc

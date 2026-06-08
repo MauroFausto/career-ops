@@ -1,0 +1,14 @@
+%%{init: {"theme": "base"}}%%
+sequenceDiagram
+    autonumber
+    actor U as Candidato
+    participant A as Agente IA
+    participant CV as cv.md
+    participant P as profile.yml
+
+    U->>A: /career-ops deep [empresa/role]
+    A->>CV: Lê experiência e projetos
+    A->>P: Lê North Star e preferências
+    A->>A: Personaliza 6 eixos com contexto JD
+    A-->>U: Prompt Deep Research estruturado
+    Note over U: Usuário cola em Perplexity / Claude / ChatGPT

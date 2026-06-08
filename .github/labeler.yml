@@ -12,9 +12,10 @@
           - modes/**/*.md
           - .claude/skills/**
 
-"🔧 scripts":
+"🔧 src":
   - changed-files:
       - any-glob-to-any-file:
+          - src/**
           - "*.mjs"
           - batch/**
 

@@ -179,6 +179,6 @@
 - `{pdf_emoji}` = `✅` або `❌`
 - `{note}` = короткий коментар (опціонально, колонку можна опустити)
 
-Потім виконати `node merge-tracker.mjs` для злиття в `data/applications.md`.
+Потім виконати `node src/pipeline/merge-tracker.mjs` для злиття в `data/applications.md`.
 
 Для **існуючого** запису допустиме пряме оновлення в `data/applications.md` (статус, PDF, посилання на звіт).

@@ -2,7 +2,7 @@
 
 Escanea portales de empleo configurados, filtra por relevancia de título, y añade nuevas ofertas al pipeline para evaluación posterior.
 
-> **Nota (v1.6+):** El escáner por defecto (`scan.mjs` / `npm run scan`) es **zero-token** y usa fuentes estructuradas: parsers locales configurados por empresa y APIs públicas de Greenhouse, Ashby y Lever. Los niveles con Playwright/WebSearch descritos abajo son el flujo **agente** (ejecutado por Claude/Codex), no lo que hace `scan.mjs`. Si una empresa no tiene parser local ni API Greenhouse/Ashby/Lever, `scan.mjs` la ignorará; para esos casos, el agente debe completar manualmente el Nivel 1 (Playwright) o Nivel 3 (WebSearch).
+> **Nota (v1.6+):** El escáner por defecto (`src/scan/scan.mjs` / `npm run scan`) es **zero-token** y usa fuentes estructuradas: parsers locales configurados por empresa y APIs públicas de Greenhouse, Ashby y Lever. Los niveles con Playwright/WebSearch descritos abajo son el flujo **agente** (ejecutado por Claude/Codex), no lo que hace `src/scan/scan.mjs`. Si una empresa no tiene parser local ni API Greenhouse/Ashby/Lever, `src/scan/scan.mjs` la ignorará; para esos casos, el agente debe completar manualmente el Nivel 1 (Playwright) o Nivel 3 (WebSearch).
 >
 > **Regla (v1.8+):** Si el parser local de una empresa termina con éxito en Nivel 0, el agente **no** debe repetir esa empresa en Playwright (Nivel 1) ni en API (Nivel 2). En Nivel 3, las queries generales siguen activas, pero se descartan resultados de empresas ya cubiertas por parser. Ver [Regla: local parser exitoso](#regla-local-parser-exitoso--no-repetir-scraping-caro).
 
@@ -40,7 +40,7 @@ Contrato recomendado:
   scan_method: local_parser
   parser:
     command: node
-    script: scripts/parsers/example-company-jobs.js
+    script: src/parsers/example-company-jobs.js
     format: jobs-json-v1
   enabled: true
 ```
@@ -77,7 +77,7 @@ Formato objeto con `results`:
 }
 ```
 
-`company` es opcional; si no viene, `scan.mjs` usa el nombre de `tracked_companies`.
+`company` es opcional; si no viene, `src/scan/scan.mjs` usa el nombre de `tracked_companies`.
 
 El escáner no necesita conservar el JSON completo después de leer stdout. Si un parser también genera un artefacto para auditoría o depuración, guardarlo en `data/parser-output/{company}/` y mantenerlo fuera de git (los JSON en `.gitignore`; los `.gitkeep` se mantienen en git para conservar la estructura).
 
@@ -94,16 +94,16 @@ Durante el scan del agente, mantener en memoria el conjunto **`local_parser_ok`*
 | Nivel | Si la empresa está en `local_parser_ok` |
 |-------|----------------------------------------|
 | **1 — Playwright** | **Omitir** — no `browser_navigate` a su `careers_url` (método más caro en tokens) |
-| **2 — API** | **Omitir** — no WebFetch de su `api:` (ya cubierta por parser; `scan.mjs` tampoco usa API tras parser exitoso) |
+| **2 — API** | **Omitir** — no WebFetch de su `api:` (ya cubierta por parser; `src/scan/scan.mjs` tampoco usa API tras parser exitoso) |
 | **3 — WebSearch** | Ejecutar queries **generales** (`site:`, títulos de rol); **descartar** cada hit cuya empresa normalizada coincida con `local_parser_ok` |
 
 **Excepciones:**
 
-- Parser **falló** → la empresa **no** entra en `local_parser_ok`; Niveles 1 y 2 aplican con normalidad (mismo criterio que el fallback de `scan.mjs` cuando el parser falla y existe API ATS).
+- Parser **falló** → la empresa **no** entra en `local_parser_ok`; Niveles 1 y 2 aplican con normalidad (mismo criterio que el fallback de `src/scan/scan.mjs` cuando el parser falla y existe API ATS).
 - Nivel 3: no desactivar queries transversales (`site:jobs.ashbyhq.com`, `site:boards.greenhouse.io`, etc.) — sirven para descubrir empresas **nuevas**. Solo filtrar resultados de empresas ya en `tracked_companies` con parser exitoso.
 - No crear queries `search_queries` dedicadas a una empresa con parser local activo (p. ej. `site:jobs.ashbyhq.com/cohere "AI Engineer"`); usar el parser o, si falla, Playwright/API.
 
-**Nivel 0 recomendado:** ejecutar `node scan.mjs` (o `npm run scan`) al inicio del workflow del agente. Eso cubre parsers locales + APIs en un solo paso zero-token y devuelve qué empresas usaron `local-parser` con éxito.
+**Nivel 0 recomendado:** ejecutar `node src/scan/scan.mjs` (o `npm run scan`) al inicio del workflow del agente. Eso cubre parsers locales + APIs en un solo paso zero-token y devuelve qué empresas usaron `local-parser` con éxito.
 
 ### Nivel 1 — Playwright directo (PRINCIPAL)
 
@@ -153,9 +153,9 @@ Los niveles son aditivos — se ejecutan en orden, los resultados se mezclan y d
 2. **Leer historial**: `data/scan-history.tsv` → URLs ya vistas
 3. **Leer dedup sources**: `data/applications.md` + `data/pipeline.md`
 
-3.5. **Nivel 0 — Local parser** (`scan.mjs`, zero-token):
+3.5. **Nivel 0 — Local parser** (`src/scan/scan.mjs`, zero-token):
    Inicializar `local_parser_ok = []`.
-   Preferir ejecutar `node scan.mjs` una vez para cubrir todos los parsers + APIs zero-token; si se hace manualmente, repetir la lógica siguiente.
+   Preferir ejecutar `node src/scan/scan.mjs` una vez para cubrir todos los parsers + APIs zero-token; si se hace manualmente, repetir la lógica siguiente.
    Para cada empresa en `tracked_companies` con `enabled: true`, `parser.command` y script existente:
    a. Ejecutar `parser.command` con `parser.script` + `parser.args` usando ejecución local sin shell
    b. Expandir placeholders `{careers_url}` y `{company}` en argumentos

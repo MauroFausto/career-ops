@@ -1,0 +1,27 @@
+%%{init: {"theme": "base"}}%%
+flowchart LR
+    subgraph In["Entrada"]
+        APP[("data/applications.md")]
+        STATES["templates/states.yml"]
+    end
+
+    subgraph Read["Leitura"]
+        PARSE["Parse tabela markdown"]
+        STATS["Agregações<br/>por status, score médio"]
+    end
+
+    subgraph Out["Saída"]
+        VIEW["Resumo no chat"]
+        EDIT["Edição status/notas<br/>(linhas existentes)"]
+    end
+
+    APP --> PARSE
+    STATES --> EDIT
+    PARSE --> STATS --> VIEW
+    PARSE --> EDIT
+    EDIT --> APP
+
+    classDef store fill:#f3e8ff,stroke:#9333ea
+    classDef proc fill:#e0e7ff,stroke:#4338ca
+    class APP store
+    class PARSE,STATS,VIEW,EDIT,STATES proc

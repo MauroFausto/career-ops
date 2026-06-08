@@ -1,0 +1,32 @@
+%%{init: {"theme": "base"}}%%
+sequenceDiagram
+    autonumber
+    actor U as Candidato
+    participant A as Agente IA
+    participant W as Playwright
+    participant R as reports/
+    participant CV as cv.md
+
+    U->>A: /career-ops apply
+    A->>W: Snapshot aba ativa
+    W-->>A: URL, título, campos visíveis
+
+    A->>R: Busca por empresa
+    alt Relatório encontrado
+        R-->>A: Report #NNN + seção G/H
+    else Sem match
+        A-->>U: Oferece auto-pipeline rápido
+    end
+
+    A->>A: Compara role tela vs. relatório
+    opt Role divergiu
+        A-->>U: Adaptar ou re-avaliar?
+    end
+
+    A->>CV: Proof points
+    loop Cada pergunta do form
+        A->>A: Gera resposta 2–4 frases
+    end
+
+    A-->>U: Bloco copy-paste por pergunta
+    Note over U,A: Candidato revisa e envia manualmente

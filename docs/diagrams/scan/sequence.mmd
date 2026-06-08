@@ -1,0 +1,50 @@
+%%{init: {"theme": "base"}}%%
+sequenceDiagram
+    autonumber
+    actor U as Candidato
+    participant A as Agente IA
+    participant S as scan.mjs
+    participant P as providers/
+    participant W as Playwright
+    participant WS as WebSearch
+    participant PL as pipeline.md
+    participant H as scan-history.tsv
+
+    U->>A: /career-ops scan
+    A->>A: Lê portals.yml + histórico + dedup sources
+
+    Note over A,S: Nível 0 — preferir zero-token
+    A->>S: node src/scan/scan.mjs
+    S->>P: fetch por empresa (concorrência 10)
+    P-->>S: jobs[]
+    S->>S: title_filter + location_filter + dedup
+    S->>PL: append Pending (se não --dry-run)
+    S->>H: registra added / skipped
+    S-->>A: local_parser_ok + resumo
+
+    loop Empresas sem local_parser_ok
+        Note over A,W: Nível 1 — Playwright
+        A->>W: careers_url batches 3–5
+        W-->>A: listings
+    end
+
+    loop Empresas com api: sem parser ok
+        Note over A: Nível 2 — API ATS
+        A->>A: WebFetch + parse provider
+    end
+
+    loop search_queries enabled
+        Note over A,WS: Nível 3 — descoberta ampla
+        A->>WS: query site:
+        WS-->>A: resultados
+        A->>A: filtra local_parser_ok
+        loop cada URL nova Nível 3
+            A->>W: liveness check (sequencial)
+            W-->>A: active / expired
+        end
+    end
+
+    A->>A: Merge + filtros finais
+    A->>PL: novas linhas Pending
+    A->>H: skipped_title / skipped_dup / skipped_expired
+    A-->>U: Resumo + "→ /career-ops pipeline"

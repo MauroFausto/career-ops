@@ -1,0 +1,18 @@
+%%{init: {"theme": "base"}}%%
+sequenceDiagram
+    autonumber
+    actor U as Candidato
+    participant A as Agente IA
+    participant P as profile.yml
+    participant CV as cv.md
+
+    U->>A: /career-ops project [ideia/URL]
+    A->>P: Roles alvo
+    A->>CV: Gaps e proof points
+    A->>A: Pontua 6 dimensões ponderadas
+    A->>A: Veredicto BUILD | SKIP | PIVOT
+    opt BUILD
+        A->>A: Plano semana 1 MVP + semana 2 polish
+        A->>A: Define Interview Pack
+    end
+    A-->>U: Matriz + veredicto + milestones

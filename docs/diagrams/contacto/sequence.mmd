@@ -1,0 +1,20 @@
+%%{init: {"theme": "base"}}%%
+sequenceDiagram
+    autonumber
+    actor U as Candidato
+    participant A as Agente IA
+    participant WS as WebSearch
+    participant CV as cv.md
+
+    U->>A: /career-ops contacto [empresa/role]
+    A->>A: Lê contexto JD ou report existente
+    A->>WS: Busca HM, recruiter, peers
+    WS-->>A: Perfis candidatos
+
+    A->>A: Classifica tipo de contato
+    A->>CV: Proof point principal
+    A->>A: Monta 3 frases (framework por tipo)
+    A->>A: Trunca ≤300 caracteres
+
+    A-->>U: Mensagem EN/ES + alvos alternativos
+    Note over U: Usuário envia manualmente no LinkedIn

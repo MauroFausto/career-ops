@@ -1,0 +1,42 @@
+%%{init: {"theme": "base"}}%%
+flowchart TB
+    subgraph In["Entradas"]
+        CV["cv.md"]
+        JD["JD texto/URL"]
+        PROF["profile.yml"]
+        TPL["cv-template.html"]
+    end
+
+    subgraph Parse["Análise JD"]
+        KW["15–20 keywords"]
+        LANG["Idioma CV"]
+        ARCH["Arquétipo"]
+        PAPER["letter / a4"]
+    end
+
+    subgraph Tailor["Personalização"]
+        SUM["Professional Summary"]
+        PROJ["Top projetos"]
+        BUL["Bullets reordenados"]
+        COMP["Core Competencies grid"]
+        INJ["Injeção keywords ética"]
+    end
+
+    subgraph Build["Build"]
+        HTML["/tmp/cv-*.html"]
+        GEN["generate-pdf.mjs"]
+        PDF[("output/cv-*.pdf")]
+    end
+
+    CV & JD --> KW & LANG & ARCH & PAPER
+    CV & KW --> SUM & PROJ & BUL & COMP & INJ
+    PROF --> HTML
+    TPL & SUM & PROJ & BUL & COMP --> HTML
+    HTML --> GEN --> PDF
+
+    classDef in fill:#dbeafe,stroke:#2563eb
+    classDef proc fill:#e0e7ff,stroke:#4338ca
+    classDef out fill:#f3e8ff,stroke:#9333ea
+    class CV,JD,PROF,TPL in
+    class KW,LANG,ARCH,PAPER,SUM,PROJ,BUL,COMP,INJ,HTML,GEN proc
+    class PDF out

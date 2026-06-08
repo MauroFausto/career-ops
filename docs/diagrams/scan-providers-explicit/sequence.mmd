@@ -1,0 +1,44 @@
+%%{init: {"theme": "base"}}%%
+sequenceDiagram
+    autonumber
+    participant A as Agente (opcional)
+    participant S as scan.mjs
+    participant P as providers/
+    participant PY as portals.yml
+    participant PL as pipeline.md
+    participant H as scan-history.tsv
+
+    opt Início workflow scan
+        A->>S: node src/scan/scan.mjs
+    end
+
+    S->>P: loadProviders()
+    S->>PY: read tracked_companies
+
+    loop cada empresa enabled
+        S->>S: resolveProvider()
+        alt provider: explícito
+            S->>P: fetch(company) via id fixo
+        else local-parser
+            S->>P: spawn parser.script → JSON stdout
+            opt parser falhou
+                S->>P: fallback API (skip local-parser)
+            end
+        else detect() URL
+            S->>P: greenhouse | ashby | lever | …
+        else sem match
+            S->>S: skip empresa
+        end
+    end
+
+    S->>S: title_filter + location_filter + dedup
+
+    opt --verify
+        loop cada URL nova
+            S->>S: Playwright liveness sequencial
+        end
+    end
+
+    S->>PL: append Pending
+    S->>H: added / skipped_*
+    S-->>A: Resumo + local_parser_ok

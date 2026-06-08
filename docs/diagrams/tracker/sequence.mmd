@@ -1,0 +1,18 @@
+%%{init: {"theme": "base"}}%%
+sequenceDiagram
+    autonumber
+    actor U as Candidato
+    participant A as Agente IA
+    participant D as applications.md
+
+    U->>A: /career-ops tracker
+    A->>D: Lê tabela completa
+    A->>A: Calcula estatísticas
+    A-->>U: Resumo por status + score médio + % PDF
+
+    opt Usuário pede update
+        U->>A: "Marca #142 como Applied"
+        A->>A: Valida status em states.yml
+        A->>D: Edita linha existente
+        A-->>U: Confirma alteração
+    end

@@ -1,0 +1,11 @@
+%%{init: {"theme": "base"}}%%
+sequenceDiagram
+    autonumber
+    actor U as Candidato
+    participant CLI as CLI com IA
+    participant S as SKILL.md
+
+    U->>CLI: /career-ops
+    CLI->>S: Carrega roteador
+    S-->>CLI: $mode vazio → discovery
+    CLI-->>U: Exibe menu de comandos<br/>(auto-pipeline, scan, pdf, …)

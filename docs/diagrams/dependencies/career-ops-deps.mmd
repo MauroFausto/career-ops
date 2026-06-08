@@ -1,0 +1,76 @@
+%%{init: {"theme": "base", "themeVariables": {"fontSize": "22px", "fontFamily": "Arial, Helvetica, sans-serif"}, "flowchart": {"nodeSpacing": 55, "rankSpacing": 70, "padding": 24}}}%%
+flowchart TB
+    subgraph JS["Node.js — .mjs / .js"]
+        direction TB
+
+        subgraph SCAN["Varredura de portais"]
+            scan["scan.mjs"]
+            http["_http.mjs"]
+            prov["providers APIs"]
+            types["_types.js"]
+            scan --> http
+            scan -. carrega .-> prov
+            prov -. tipos .-> types
+        end
+
+        subgraph LIVE["Checagem URL viva"]
+            check["check-liveness.mjs"]
+            lbrowser["liveness-browser.mjs"]
+            lcore["liveness-core.mjs"]
+            check --> lbrowser --> lcore
+            scan -. verify .-> lbrowser
+        end
+
+        subgraph PIPE["Integridade tracker"]
+            merge["merge-tracker.mjs"]
+            verify["verify-pipeline.mjs"]
+            dedup["dedup-tracker.mjs"]
+            norm["normalize-statuses.mjs"]
+            cvchk["cv-sync-check.mjs"]
+            patterns["analyze-patterns.mjs"]
+            merge -. exec .-> verify
+        end
+
+        subgraph OUT["Geração saída"]
+            pdf["generate-pdf.mjs"]
+            latex["generate-latex.mjs"]
+            gemini["gemini-eval.mjs"]
+        end
+
+        subgraph OPS["Testes e utilitários"]
+            doctor["doctor.mjs"]
+            upd["update-system.mjs"]
+            cadence["followup-cadence.mjs"]
+            tests["test-all.mjs"]
+            tests -. import .-> lcore
+            tests -. import .-> scan
+            tests -. import .-> cadence
+            tests -. import .-> prov
+            tests -. run .-> merge
+            tests -. run .-> verify
+            tests -. run .-> dedup
+            tests -. run .-> norm
+            tests -. run .-> cvchk
+            tests -. run .-> patterns
+            tests -. run .-> upd
+        end
+    end
+
+    subgraph GO["Go — dashboard TUI"]
+        direction TB
+        main["main.go"]
+        screens["ui/screens"]
+        data["internal/data"]
+        model["internal/model"]
+        theme["internal/theme"]
+        main --> screens
+        main --> data
+        main --> model
+        main --> theme
+        screens --> data
+        screens --> model
+        screens --> theme
+        data --> model
+    end
+
+    JS ~~~ GO

@@ -1,0 +1,70 @@
+%%{init: {"theme": "base", "flowchart": {"curve": "basis"}}}%%
+flowchart TB
+    subgraph Input["Entrada"]
+        JD["URL ou texto JD"]
+        CV["cv.md"]
+        PROF["config/profile.yml"]
+        DIG["article-digest.md"]
+        SHARED["modes/_shared.md"]
+    end
+
+    subgraph Extract["Step 0 — Extração"]
+        PW["Playwright"]
+        WF["WebFetch"]
+        WS["WebSearch"]
+        TEXT["Texto JD normalizado"]
+    end
+
+    subgraph Eval["Step 1–2 — Avaliação"]
+        ARCH["Detecção arquétipo"]
+        ABLOCKS["Blocos A–G"]
+        SCORE["Score ponderado /5"]
+        REPORT[("reports/*.md")]
+    end
+
+    subgraph Gen["Step 3 — CV"]
+        FMT{"output_format?"}
+        PDFM["generate-pdf.mjs"]
+        LTX["generate-latex.mjs"]
+        OUT[("output/*.pdf")]
+    end
+
+    subgraph Draft["Step 4 — Opcional"]
+        GATE{">= 4.5?"}
+        FORM["Rascunho seção H"]
+    end
+
+    subgraph Track["Step 5 — Tracker"]
+        TSV[("batch/tracker-additions/*.tsv")]
+        MERGE["merge-tracker.mjs"]
+        APP[("data/applications.md")]
+    end
+
+    JD --> PW
+    PW -->|falha| WF
+    WF -->|falha| WS
+    PW & WF & WS --> TEXT
+
+    CV & PROF & DIG & SHARED & TEXT --> ARCH
+    ARCH --> ABLOCKS --> SCORE --> REPORT
+
+    SCORE --> FMT
+    FMT -->|html| PDFM
+    FMT -->|latex| LTX
+    PDFM & LTX --> OUT
+
+    SCORE --> GATE
+    GATE -->|sim| FORM
+    FORM --> REPORT
+
+    SCORE --> TSV --> MERGE --> APP
+    REPORT --> TSV
+
+    classDef input fill:#dbeafe,stroke:#2563eb
+    classDef process fill:#e0e7ff,stroke:#4338ca
+    classDef store fill:#f3e8ff,stroke:#9333ea
+    classDef node fill:#dcfce7,stroke:#16a34a
+
+    class JD,CV,PROF,DIG,SHARED input
+    class PW,WF,WS,TEXT,ARCH,ABLOCKS,SCORE,FMT,GATE,FORM,MERGE,PDFM,LTX process
+    class REPORT,OUT,TSV,APP store

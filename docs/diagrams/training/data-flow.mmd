@@ -1,0 +1,34 @@
+%%{init: {"theme": "base"}}%%
+flowchart TB
+    subgraph In["Entrada"]
+        COURSE["Curso / certificação"]
+        PROF["profile.yml North Star"]
+        CV["cv.md"]
+    end
+
+    subgraph Dim["6 dimensões"]
+        D1["North Star"]
+        D2["Sinal recruiter"]
+        D3["Tempo"]
+        D4["Oportunidade"]
+        D5["Riscos"]
+        D6["Portfolio"]
+    end
+
+    subgraph Verdict["Veredicto"]
+        V{"Score qualitativo"}
+        DO["FAZER + plano"]
+        SKIP["NÃO FAZER"]
+        TB["FAZER COM TIMEBOX"]
+    end
+
+    COURSE --> D1 & D2 & D3 & D4 & D5 & D6
+    PROF --> D1
+    CV --> D2 & D6
+    D1 & D2 & D3 & D4 & D5 & D6 --> V
+    V --> DO & SKIP & TB
+
+    classDef in fill:#dbeafe,stroke:#2563eb
+    classDef proc fill:#e0e7ff,stroke:#4338ca
+    class COURSE,PROF,CV in
+    class D1,D2,D3,D4,D5,D6,V,DO,SKIP,TB proc

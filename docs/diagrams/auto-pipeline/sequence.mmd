@@ -1,0 +1,39 @@
+%%{init: {"theme": "base"}}%%
+sequenceDiagram
+    autonumber
+    actor U as Candidato
+    participant A as Agente IA
+    participant W as Playwright
+    participant R as reports/
+    participant G as generate-pdf.mjs
+    participant T as merge-tracker.mjs
+    participant D as data/applications.md
+
+    U->>A: Cola URL ou texto JD
+    alt URL
+        A->>W: browser_navigate + snapshot
+        W-->>A: Texto JD
+    else Texto direto
+        A->>A: Usa JD do chat
+    end
+
+    A->>A: Lê cv.md, profile.yml, _shared.md
+    A->>A: Avaliação A–G + score
+    A->>R: Grava reports/NNN-company-date.md
+
+    alt output_format = latex
+        A->>A: Pipeline LaTeX (generate-latex.mjs)
+    else default HTML
+        A->>G: HTML → PDF
+        G-->>A: output/cv-*.pdf
+    end
+
+    opt score >= 4.5
+        A->>W: Snapshot formulário (se URL)
+        A->>R: Adiciona seção H (rascunho)
+    end
+
+    A->>A: Escreve batch/tracker-additions/*.tsv
+    A->>T: merge-tracker.mjs
+    T->>D: Consolida linha no tracker
+    A-->>U: Resumo: score, PDF, recomendação

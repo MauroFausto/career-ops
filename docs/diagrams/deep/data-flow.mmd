@@ -1,0 +1,32 @@
+%%{init: {"theme": "base"}}%%
+flowchart LR
+    subgraph In["Entrada"]
+        CO["Empresa + role"]
+        CV["cv.md"]
+        PROF["profile.yml"]
+        JD["JD / report"]
+    end
+
+    subgraph Build["Construção prompt"]
+        A1["1. AI Strategy"]
+        A2["2. Recent moves"]
+        A3["3. Eng culture"]
+        A4["4. Challenges"]
+        A5["5. Competitors"]
+        A6["6. Candidate angle"]
+    end
+
+    subgraph Out["Saída"]
+        PROMPT["Deep Research prompt<br/>(markdown no chat)"]
+    end
+
+    CO & JD --> A1 & A2 & A3 & A4 & A5
+    CV & PROF --> A6
+    A1 & A2 & A3 & A4 & A5 & A6 --> PROMPT
+
+    classDef in fill:#dbeafe,stroke:#2563eb
+    classDef proc fill:#e0e7ff,stroke:#4338ca
+    classDef out fill:#dcfce7,stroke:#16a34a
+    class CO,CV,PROF,JD in
+    class A1,A2,A3,A4,A5,A6 proc
+    class PROMPT out

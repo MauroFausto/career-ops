@@ -9,13 +9,13 @@
 states:
   - id: evaluated
     label: Evaluated
-    aliases: [evaluada]
+    aliases: [evaluada, avaliada, avaliar]
     description: Offer evaluated with report, pending decision
     dashboard_group: evaluated
 
   - id: applied
     label: Applied
-    aliases: [aplicado, enviada, aplicada, sent]
+    aliases: [aplicado, enviada, aplicada, sent, candidatado, candidatada]
     description: Application submitted
     dashboard_group: applied
 
@@ -39,18 +39,18 @@ states:
 
   - id: rejected
     label: Rejected
-    aliases: [rechazado, rechazada]
+    aliases: [rechazado, rechazada, rejeitado, rejeitada]
     description: Rejected by company
     dashboard_group: rejected
 
   - id: discarded
     label: Discarded
-    aliases: [descartado, descartada, cerrada, cancelada]
+    aliases: [descartado, descartada, cerrada, cancelada, fechada]
     description: Discarded by candidate or offer closed
     dashboard_group: discarded
 
   - id: skip
     label: SKIP
-    aliases: [no_aplicar, no aplicar, skip, monitor]
+    aliases: [no_aplicar, no aplicar, nao_candidatar, nao candidatar, não candidatar, skip, monitor]
     description: Doesn't fit, don't apply
     dashboard_group: skip

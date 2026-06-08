@@ -1,0 +1,37 @@
+%%{init: {"theme": "base"}}%%
+flowchart TB
+    subgraph In["Entrada"]
+        IDEA["Ideia de projeto"]
+        PROF["profile.yml roles alvo"]
+        CV["cv.md gaps"]
+    end
+
+    subgraph Score["Matriz ponderada"]
+        S1["Signal 25%"]
+        S2["Uniqueness 20%"]
+        S3["Demo 20%"]
+        S4["Metrics 15%"]
+        S5["Time MVP 10%"]
+        S6["STAR 10%"]
+        AVG["Score composto"]
+    end
+
+    subgraph Verdict["Veredicto"]
+        V{"Threshold"}
+        BUILD["BUILD + plano 80/20"]
+        SKIP["SKIP"]
+        PIVOT["PIVOT TO alternativa"]
+        PACK["Interview Pack<br/>one-pager + demo + postmortem"]
+    end
+
+    IDEA --> S1 & S2 & S3 & S4 & S5 & S6
+    PROF --> S1
+    CV --> S1 & S6
+    S1 & S2 & S3 & S4 & S5 & S6 --> AVG --> V
+    V --> BUILD & SKIP & PIVOT
+    BUILD --> PACK
+
+    classDef in fill:#dbeafe,stroke:#2563eb
+    classDef proc fill:#e0e7ff,stroke:#4338ca
+    class IDEA,PROF,CV in
+    class S1,S2,S3,S4,S5,S6,AVG,V,BUILD,SKIP,PIVOT,PACK proc

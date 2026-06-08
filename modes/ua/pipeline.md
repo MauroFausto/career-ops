@@ -59,7 +59,7 @@
 Перед обробкою URL:
 
 ```bash
-node cv-sync-check.mjs
+node src/pipeline/cv-sync-check.mjs
 ```
 
 Якщо розсинхронізація — попередити користувача.

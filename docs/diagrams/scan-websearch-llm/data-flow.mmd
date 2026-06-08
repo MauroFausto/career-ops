@@ -1,0 +1,46 @@
+%%{init: {"theme": "base"}}%%
+flowchart TB
+    subgraph Config["portals.yml"]
+        SQ["search_queries[]<br/>enabled: true"]
+        LPOK["local_parser_ok<br/>(memória agente)"]
+    end
+
+    subgraph L3["Nível 3 — Agente + LLM"]
+        WS["WebSearch por query"]
+        PARSE["Parse title @ company"]
+        FILTER["Filtrar empresa ∈ local_parser_ok"]
+    end
+
+    subgraph Merge["Integração"]
+        POOL["Pool candidatos<br/>N0+N1+N2+L3"]
+        DED["Dedup 3 fontes"]
+        TF["title_filter"]
+    end
+
+    subgraph Live["Verificação obrigatória"]
+        SEQ["Playwright sequencial<br/>(nunca paralelo)"]
+        ACT{"Ativa?"}
+        EXP["skipped_expired"]
+        OK["candidata final"]
+    end
+
+    subgraph Out["Saídas"]
+        PL[("pipeline.md")]
+        SH[("scan-history.tsv")]
+    end
+
+    SQ --> WS --> PARSE --> FILTER
+    LPOK --> FILTER
+    FILTER --> POOL --> DED --> TF --> SEQ
+    SEQ --> ACT
+    ACT -->|não| EXP --> SH
+    ACT -->|sim| OK --> PL & SH
+
+    classDef cfg fill:#dbeafe,stroke:#2563eb
+    classDef llm fill:#fce7f3,stroke:#db2777
+    classDef proc fill:#e0e7ff,stroke:#4338ca
+    classDef store fill:#f3e8ff,stroke:#9333ea
+    class SQ,LPOK cfg
+    class WS,PARSE,FILTER llm
+    class POOL,DED,TF,SEQ,ACT,EXP,OK proc
+    class PL,SH store

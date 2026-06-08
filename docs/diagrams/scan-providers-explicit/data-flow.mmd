@@ -1,0 +1,61 @@
+%%{init: {"theme": "base"}}%%
+flowchart TB
+    subgraph Config["portals.yml"]
+        TC["tracked_companies[]"]
+        TF["title_filter"]
+        LF["location_filter"]
+    end
+
+    subgraph Load["scan.mjs boot"]
+        LP["loadProviders()"]
+        MAP["Map id → provider"]
+    end
+
+    subgraph Resolve["Por empresa enabled"]
+        EXP{"provider: explícito?"}
+        LOC{"parser local?"}
+        DET["detect() ordem alfabética"]
+        SKIP["skipped — sem match"]
+    end
+
+    subgraph Fetch["fetch() paralelo ×10"]
+        F0["local-parser<br/>spawn script → stdout JSON"]
+        F1["greenhouse-api"]
+        F2["ashby-api"]
+        F3["lever-api"]
+        F4["workable · recruitee · smartrecruiters"]
+        FB["fallback API se parser falhou"]
+    end
+
+    subgraph Post["Pós-processamento"]
+        FILT["title + location filter"]
+        DED["dedup 3 fontes"]
+        VER{"--verify?"}
+        PW["Playwright liveness"]
+        W["pipeline.md + scan-history.tsv"]
+    end
+
+    TC --> EXP
+    LP --> MAP --> EXP
+    EXP -->|sim| Fetch
+    EXP -->|não| LOC
+    LOC -->|sim| F0
+    LOC -->|não| DET
+    DET -->|match| Fetch
+    DET -->|null| SKIP
+    F0 -->|erro| FB
+
+    TF & LF --> FILT
+    Fetch --> FILT --> DED
+    DED --> VER
+    VER -->|sim| PW --> W
+    VER -->|não| W
+
+    classDef cfg fill:#dbeafe,stroke:#2563eb
+    classDef proc fill:#e0e7ff,stroke:#4338ca
+    classDef api fill:#dcfce7,stroke:#16a34a
+    classDef store fill:#f3e8ff,stroke:#9333ea
+    class TC,TF,LF cfg
+    class LP,MAP,EXP,LOC,DET,FILT,DED,VER,PW proc
+    class F0,F1,F2,F3,F4,FB api
+    class W,SKIP store

@@ -1,0 +1,68 @@
+%%{init: {"theme": "base", "themeVariables": {"fontSize": "26px", "fontFamily": "Arial, Helvetica, sans-serif", "primaryTextColor": "#111111", "lineColor": "#202020"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 70, "rankSpacing": 90, "padding": 32}}}%%
+flowchart TB
+    subgraph A["A — Entrypoint Cursor CLI"]
+        direction LR
+        A1["agent"] --> A2["AGENTS.md · DATA_CONTRACT"]
+        A2 --> A3["modes/*.md"]
+        A3 --> A4["User layer<br/>cv · profile · portals"]
+    end
+
+    subgraph B["B — Pipeline agente"]
+        direction LR
+        B1{"Input"} --> B2["auto-pipeline"]
+        B1 --> B3["oferta · scan · …"]
+        B2 --> B4["Eval A–G"]
+        B3 --> B4
+        B4 --> B5["Tailor CV"]
+    end
+
+    subgraph C["C — Node src/"]
+        direction LR
+        C1["generate-latex.mjs"]
+        C2["generate-pdf.mjs"]
+        C3["merge-tracker.mjs"]
+        C4["scan.mjs"]
+    end
+
+    subgraph D["D — Store (filesystem)"]
+        direction LR
+        D1[("reports/")]
+        D2[("output/*.pdf")]
+        D3[("applications.md")]
+        D4[("pipeline.md · scan-history.tsv")]
+    end
+
+    subgraph E["E — Dashboard Go TUI"]
+        direction LR
+        E1["main.go"] --> E2["ParseApplications"]
+        E2 --> E3["TUI · viewer · progress"]
+        E3 --> E4["UpdateStatus"]
+    end
+
+    A4 --> B1
+
+    B4 --> D1
+    B5 --> C1
+    B5 --> C2
+    C1 --> D2
+    C2 --> D2
+    B2 --> C3
+    C3 --> D3
+    B3 --> C4
+    C4 --> D4
+
+    E2 --> D3
+    E3 --> D1
+    E4 --> D3
+
+    classDef entry fill:#dbeafe,stroke:#2563eb,color:#111,stroke-width:2px
+    classDef agent fill:#e0e7ff,stroke:#4338ca,color:#111,stroke-width:2px
+    classDef node fill:#dcfce7,stroke:#16a34a,color:#111,stroke-width:2px
+    classDef data fill:#f3e8ff,stroke:#9333ea,color:#111,stroke-width:2px
+    classDef go fill:#ffe4e6,stroke:#e11d48,color:#111,stroke-width:2px
+
+    class A1,A2,A3,A4 entry
+    class B1,B2,B3,B4,B5 agent
+    class C1,C2,C3,C4 node
+    class D1,D2,D3,D4 data
+    class E1,E2,E3,E4 go
